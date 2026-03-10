@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Loader2, Sparkles, Zap } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { askAI } from '@/lib/api';
 
 interface Message {
@@ -160,9 +162,15 @@ Ask me anything about your security data.`,
                 lineHeight: 1.75,
                 color: 'var(--text-primary)',
               }}>
-                {msg.role === 'ai'
-                  ? <div dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }} />
-                  : <div>{msg.content}</div>}
+                {msg.role === 'ai' ? (
+                  <div className="markdown-body">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <div>{msg.content}</div>
+                )}
                 <div style={{
                   fontSize: 10, color: 'var(--text-muted)', marginTop: 8,
                   textAlign: msg.role === 'user' ? 'right' : 'left',

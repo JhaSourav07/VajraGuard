@@ -26,6 +26,7 @@ function detectBruteForce(eventsByIp) {
   for (const [ip, events] of Object.entries(eventsByIp)) {
     const failed = events.filter((e) => e.event_type === 'failed_login');
     if (failed.length >= BRUTE_FORCE_THRESHOLD) {
+      console.log(`[ThreatEngine] 🚨 Detected Brute Force from ${ip} (${failed.length} failed attempts)`);
       threats.push({
         type: 'Brute Force Attack',
         riskLevel: failed.length >= 10 ? 'Critical' : 'High',
@@ -54,6 +55,7 @@ function detectAccountTakeover(eventsByIp) {
     const failed = events.filter((e) => e.event_type === 'failed_login');
     const success = events.filter((e) => e.event_type === 'successful_login');
     if (failed.length >= 2 && success.length >= 1) {
+      console.log(`[ThreatEngine] 💀 Detected Account Takeover from ${ip} (Failed: ${failed.length}, Success: ${success.length})`);
       threats.push({
         type: 'Account Takeover',
         riskLevel: 'Critical',
@@ -82,6 +84,7 @@ function detectPortScan(eventsByIp) {
     const scans = events.filter((e) => e.event_type === 'port_scan' || e.event_type === 'firewall_block');
     if (scans.length >= PORT_SCAN_THRESHOLD) {
       const uniquePorts = [...new Set(scans.map((e) => e.port).filter(Boolean))];
+      console.log(`[ThreatEngine] 🔎 Detected Port Scan from ${ip} (${uniquePorts.length} unique ports)`);
       threats.push({
         type: 'Port Scan',
         riskLevel: 'Medium',
@@ -115,6 +118,7 @@ function detectWebAttack(eventsByIp) {
     );
 
     if (notFound.length >= 10 || suspiciousRequests.length >= 3) {
+      console.log(`[ThreatEngine] 🕸️ Detected Web Attack from ${ip} (${suspiciousRequests.length} suspicious paths, ${notFound.length} 404s)`);
       threats.push({
         type: 'Web Attack',
         riskLevel: suspiciousRequests.length >= 3 ? 'High' : 'Medium',

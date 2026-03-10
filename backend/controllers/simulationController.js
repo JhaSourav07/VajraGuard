@@ -55,6 +55,10 @@ exports.runSimulation = async (req, res) => {
   try {
     const extra = identityFields(req);
     const numAttackers = 2 + Math.floor(Math.random() * 2);
+    
+    console.log(`\n[API] 🎮 Triggering Mock Attack Simulation...`);
+    console.log(`[Simulation] Generating fake logs for ${numAttackers} attackers...`);
+    
     const selectedIps = [...ATTACKER_IPS].sort(() => Math.random() - 0.5).slice(0, numAttackers);
 
     let allLines = [];
@@ -66,6 +70,9 @@ exports.runSimulation = async (req, res) => {
     allLines.sort(() => Math.random() - 0.5);
 
     const simulatedLog = allLines.join('\n');
+    
+    console.log(`[Simulation] Generated ${allLines.length} raw log lines.`);
+    
     const parsedEvents = parseLog(simulatedLog);
     const ruleThreats = correlateThreats(parsedEvents);
 
@@ -80,6 +87,8 @@ exports.runSimulation = async (req, res) => {
     } catch (_) {}
 
     const aiResult = await analyzeThreat(parsedEvents, ruleThreats);
+
+    console.log(`[Simulation] ✅ Simulation complete. Created ${parsedEvents.length} events and ${ruleThreats.length} threats.\n`);
 
     res.json({
       success: true,

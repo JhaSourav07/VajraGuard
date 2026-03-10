@@ -30,6 +30,7 @@ function parseLine(line) {
   // SSH Failed Login
   match = line.match(SSH_FAILED);
   if (match) {
+    console.log(`[Parser] ❌ SSH Failed Login -> User: ${match[2]} | IP: ${match[3]}`);
     return {
       event_type: 'failed_login',
       timestamp: match[1],
@@ -42,6 +43,7 @@ function parseLine(line) {
   // SSH Invalid User (also counts as failed)
   match = line.match(SSH_INVALID);
   if (match) {
+    console.log(`[Parser] ❌ SSH Invalid User -> User: ${match[2]} | IP: ${match[3]}`);
     return {
       event_type: 'failed_login',
       timestamp: match[1],
@@ -54,6 +56,7 @@ function parseLine(line) {
   // SSH Successful Login
   match = line.match(SSH_SUCCESS);
   if (match) {
+    console.log(`[Parser] ✅ SSH Success -> User: ${match[2]} | IP: ${match[3]}`);
     return {
       event_type: 'successful_login',
       timestamp: match[1],
@@ -66,6 +69,7 @@ function parseLine(line) {
   // Web Server Request
   match = line.match(WEB_REQUEST);
   if (match) {
+    console.log(`[Parser] 🌐 Web Request -> ${match[3]} ${match[4]} | IP: ${match[1]} | Status: ${match[5]}`);
     return {
       event_type: 'web_request',
       timestamp: match[2],
@@ -80,6 +84,7 @@ function parseLine(line) {
   // Firewall Block
   match = line.match(FIREWALL_BLOCK);
   if (match) {
+    console.log(`[Parser] 🛡️ Firewall Block -> IP: ${match[2]} | Port: ${match[3]}`);
     return {
       event_type: 'firewall_block',
       timestamp: match[1],
@@ -92,6 +97,7 @@ function parseLine(line) {
   // Port Scan
   match = line.match(PORT_SCAN);
   if (match) {
+    console.log(`[Parser] 🔎 Port Scan -> IP: ${match[2]}`);
     return {
       event_type: 'port_scan',
       timestamp: match[1],
@@ -116,6 +122,7 @@ function parseLine(line) {
  * @returns {Array} Array of parsed event objects
  */
 function parseLog(content) {
+  console.log(`\n[Parser] 🚀 Starting log file parsing...`);
   const lines = content.split('\n');
   const events = [];
 
@@ -125,6 +132,7 @@ function parseLog(content) {
     if (event) events.push(event);
   }
 
+  console.log(`[Parser] ✨ Finished! Extracted ${events.length} valid events from ${lines.length} lines.`);
   return events;
 }
 

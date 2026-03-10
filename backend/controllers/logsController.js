@@ -30,8 +30,12 @@ function identityFields(req) {
  */
 exports.uploadLog = async (req, res) => {
   try {
-    if (!req.file)
+    if (!req.file) {
+      console.warn(`[API] ⚠️ log upload attempt failed: No file provided.`);
       return res.status(400).json({ success: false, message: 'No file uploaded.' });
+    }
+
+    console.log(`\n[API] 📥 Received log file upload: ${req.file.originalname} (${req.file.size} bytes)`);
 
     const { filter, extra } = identityFields(req);
     const fileContent = fs.readFileSync(req.file.path, 'utf-8');
@@ -56,7 +60,9 @@ exports.uploadLog = async (req, res) => {
     } catch (_) {}
 
     // Rule-based threat correlation
+    console.log(`[Engine] 🔍 Correlating threats from ${parsedEvents.length} events...`);
     const ruleThreats = correlateThreats(parsedEvents);
+    console.log(`[Engine] 🎯 Found ${ruleThreats.length} threats based on rules.`);
 
     // Save threats
     let savedThreats = [];
@@ -77,6 +83,9 @@ exports.uploadLog = async (req, res) => {
     // AI analysis
     let aiAnalysis = null;
     try {
+      if (ruleThreats.length > 0) {
+        console.log(`[ASI-1] 🤖 Requesting AI analysis for ${ruleThreats.length} detected threats...`);
+      }
       const aiResult = await analyzeThreat(parsedEvents, ruleThreats);
       aiAnalysis = aiResult.analysis;
       try {
@@ -88,6 +97,8 @@ exports.uploadLog = async (req, res) => {
     } catch (_) {}
 
     try { fs.unlinkSync(req.file.path); } catch (_) {}
+
+    console.log(`[API] ✅ Successfully processed ${req.file.originalname}. Returning response to client.\n`);
 
     res.json({
       success: true,

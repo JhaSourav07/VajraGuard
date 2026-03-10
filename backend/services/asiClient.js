@@ -91,7 +91,9 @@ Format your response as a structured security report. Be precise and professiona
   ];
 
   try {
+    console.log(`[ASI-1] 🧠 Sending prompt to ASI-1 model for threat analysis...`);
     const analysis = await chatCompletion(messages, 1500);
+    console.log(`[ASI-1] ✅ Received threat analysis report from ASI-1 (Length: ${analysis.length} chars)`);
     return { success: true, analysis };
   } catch (err) {
     console.error('ASI-1 API error:', err.message);
@@ -135,7 +137,9 @@ async function askAssistant(question, events = [], threats = []) {
   ];
 
   try {
+    console.log(`[ASI-1] 💬 AI Assistant asking: "${question}" (Context: ${events.length} events, ${threats.length} threats)`);
     const response = await chatCompletion(messages, 1200);
+    console.log(`[ASI-1] ✅ AI Assistant replied (Length: ${response.length} chars)`);
     return { success: true, response };
   } catch (err) {
     console.error('ASI-1 assistant error:', err.message);

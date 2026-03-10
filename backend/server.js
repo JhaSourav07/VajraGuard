@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
+const morgan = require('morgan');
 
 const authRouter       = require('./routes/auth');
 const logsRouter       = require('./routes/logs');
@@ -26,6 +27,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Request logging middleware
+app.use(morgan('dev'));
+
 // Health check (public)
 app.get('/api/health', (req, res) =>
   res.json({ status: 'ok', service: 'VajraGuard API', timestamp: new Date().toISOString() })
@@ -39,6 +43,12 @@ app.use('/api/events',   eventsRouter);     // all protected
 app.use('/api/ai',       aiRouter);         // all protected
 app.use('/api/simulate', simulationRouter); // all protected
 app.use('/api/settings', settingsRouter);   // all protected
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(`[Express Error] ${req.method} ${req.url}:`, err);
+  res.status(500).json({ success: false, message: 'Internal Server Error' });
+});
 
 // MongoDB
 mongoose
