@@ -19,10 +19,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  AreaChart,
-  Area,
 } from 'recharts';
-import { fetchStats, fetchThreats, runSimulation, updateThreatStatus } from '@/lib/api';
+import { fetchStats, fetchThreats, updateThreatStatus } from '@/lib/api';
+import SimulationPanel from '@/components/SimulationPanel';
 
 interface Stats {
   total: number;
@@ -127,8 +126,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [threats, setThreats] = useState<Threat[]>([]);
   const [loading, setLoading] = useState(true);
-  const [simulating, setSimulating] = useState(false);
-  const [simResult, setSimResult] = useState<string | null>(null);
+  const [showSim, setShowSim] = useState(false);
   const [selectedThreat, setSelectedThreat] = useState<Threat | null>(null);
 
   const loadData = useCallback(async () => {
@@ -153,19 +151,9 @@ export default function DashboardPage() {
     loadData();
   }, [loadData]);
 
-  const handleSimulate = async () => {
-    setSimulating(true);
-    setSimResult(null);
-    try {
-      const result = await runSimulation();
-      setSimResult(result.message || 'Simulation complete');
-      await loadData();
-    } catch {
-      setSimResult('Backend not reachable. Please start the backend server.');
-    } finally {
-      setSimulating(false);
-    }
-  };
+  const handleSimComplete = useCallback(() => {
+    loadData();
+  }, [loadData]);
 
   const handleBlock = async (threat: Threat) => {
     try {
@@ -197,41 +185,26 @@ export default function DashboardPage() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-cyber" onClick={loadData} disabled={loading}>
-            <RefreshCw size={13} style={{ display: 'inline', marginRight: 6, animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+            <RefreshCw size={13} style={{ display: 'inline', marginRight: 6 }} />
             Refresh
           </button>
           <button
             className="btn-danger"
-            onClick={handleSimulate}
-            disabled={simulating}
+            onClick={() => setShowSim(true)}
             style={{ display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <Play size={13} />
-            {simulating ? 'Simulating...' : 'Simulate Attack'}
+            Simulate Attack
           </button>
         </div>
       </div>
 
-      {/* Simulation result banner */}
-      {simResult && (
-        <div
-          style={{
-            marginBottom: 20,
-            padding: '12px 20px',
-            background: 'rgba(255,68,68,0.08)',
-            border: '1px solid rgba(255,68,68,0.3)',
-            borderRadius: 10,
-            color: 'var(--red)',
-            fontSize: 13,
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <AlertTriangle size={16} />
-          {simResult}
-        </div>
+      {/* Simulation Panel */}
+      {showSim && (
+        <SimulationPanel
+          onClose={() => setShowSim(false)}
+          onComplete={handleSimComplete}
+        />
       )}
 
       {/* Stats cards */}
