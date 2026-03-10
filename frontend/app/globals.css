@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0a0f1e;
+  --bg-secondary: #0d1529;
+  --bg-card: #111827;
+  --bg-card-hover: #1a2540;
+  --border: #1e2d4a;
+  --border-glow: rgba(0, 212, 255, 0.3);
+  --cyan: #00d4ff;
+  --cyan-dim: rgba(0, 212, 255, 0.1);
+  --green: #00ff88;
+  --green-dim: rgba(0, 255, 136, 0.1);
+  --red: #ff4444;
+  --red-dim: rgba(255, 68, 68, 0.1);
+  --orange: #ff8c00;
+  --orange-dim: rgba(255, 140, 0, 0.1);
+  --yellow: #ffd700;
+  --yellow-dim: rgba(255, 215, 0, 0.1);
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* Glow animations */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px var(--cyan), 0 0 10px rgba(0, 212, 255, 0.2); }
+  50% { box-shadow: 0 0 15px var(--cyan), 0 0 30px rgba(0, 212, 255, 0.4); }
+}
+
+@keyframes ping-red {
+  0% { transform: scale(0.8); opacity: 1; }
+  70%, 100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes data-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.08);
+}
+
+/* Glow text */
+.glow-cyan { color: var(--cyan); text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+.glow-green { color: var(--green); text-shadow: 0 0 20px rgba(0, 255, 136, 0.5); }
+.glow-red { color: var(--red); text-shadow: 0 0 20px rgba(255, 68, 68, 0.5); }
+
+/* Cyber button */
+.btn-cyber {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05));
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  color: var(--cyan);
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 0.5px;
+}
+
+.btn-cyber:hover {
+  background: rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, rgba(255, 68, 68, 0.15), rgba(255, 68, 68, 0.05));
+  border: 1px solid rgba(255, 68, 68, 0.4);
+  color: var(--red);
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-danger:hover {
+  background: rgba(255, 68, 68, 0.2);
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+}
+
+/* Risk badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.badge-critical { background: rgba(255, 68, 68, 0.2); color: #ff4444; border: 1px solid rgba(255, 68, 68, 0.4); }
+.badge-high { background: rgba(255, 140, 0, 0.2); color: #ff8c00; border: 1px solid rgba(255, 140, 0, 0.4); }
+.badge-medium { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.4); }
+.badge-low { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.4); }
+
+/* Status dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.live {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.status-dot.threat {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+}
+
+/* Mono font for IPs/codes */
+.mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+/* Grid lines background (subtle) */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Gradient borders */
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--cyan), transparent, var(--green));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  background: #0a0f1e !important;
+  border-radius: 12px;
+}
+
+.leaflet-tile {
+  filter: brightness(0.4) saturate(0.5) hue-rotate(180deg);
+}
+
+/* ReactFlow overrides */
+.react-flow__background { background: var(--bg-primary) !important; }
+.react-flow__edge-path { stroke: var(--cyan) !important; }
+.react-flow__controls { background: var(--bg-card) !important; border-color: var(--border) !important; }
+.react-flow__controls-button { background: var(--bg-card) !important; border-color: var(--border) !important; color: var(--text-primary) !important; }
+
+/* Chat messages */
+.chat-user { background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); }
+.chat-ai { background: rgba(17, 24, 39, 0.8); border: 1px solid var(--border); }
+
+/* Prose/markdown in AI responses */
+.prose-cyber { color: var(--text-primary); }
+.prose-cyber h1, .prose-cyber h2, .prose-cyber h3 { color: var(--cyan); margin-bottom: 8px; margin-top: 16px; }
+.prose-cyber strong { color: var(--yellow); }
+.prose-cyber code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: var(--green); font-size: 12px; }
+.prose-cyber ul, .prose-cyber ol { padding-left: 20px; margin: 8px 0; }
+.prose-cyber li { margin: 4px 0; }
+.prose-cyber p { margin: 8px 0; }

@@ -1,0 +1,28 @@
+Mar 10 10:22:31 server sshd[4521]: Failed password for root from 185.234.218.12 port 22 ssh2
+Mar 10 10:22:35 server sshd[4522]: Failed password for root from 185.234.218.12 port 22 ssh2
+Mar 10 10:22:40 server sshd[4523]: Failed password for admin from 185.234.218.12 port 22 ssh2
+Mar 10 10:22:44 server sshd[4524]: Failed password for root from 185.234.218.12 port 22 ssh2
+Mar 10 10:22:49 server sshd[4525]: Failed password for ubuntu from 185.234.218.12 port 22 ssh2
+Mar 10 10:22:54 server sshd[4526]: Failed password for root from 185.234.218.12 port 22 ssh2
+Mar 10 10:22:59 server sshd[4527]: Failed password for deploy from 185.234.218.12 port 22 ssh2
+Mar 10 10:23:01 server sshd[4528]: Accepted password for root from 185.234.218.12 port 58422 ssh2
+Mar 10 10:23:45 server kernel: [UFW BLOCK] IN=eth0 SRC=91.108.4.117 DST=10.0.1 PROTO=TCP DPT=22
+Mar 10 10:23:46 server kernel: [UFW BLOCK] IN=eth0 SRC=91.108.4.117 DST=10.0.1 PROTO=TCP DPT=80
+Mar 10 10:23:47 server kernel: [UFW BLOCK] IN=eth0 SRC=91.108.4.117 DST=10.0.1 PROTO=TCP DPT=443
+Mar 10 10:23:48 server kernel: [UFW BLOCK] IN=eth0 SRC=91.108.4.117 DST=10.0.1 PROTO=TCP DPT=3306
+Mar 10 10:23:49 server kernel: [UFW BLOCK] IN=eth0 SRC=91.108.4.117 DST=10.0.1 PROTO=TCP DPT=8080
+Mar 10 10:23:50 server sshd[4529]: Failed password for root from 103.195.236.44 port 22 ssh2
+Mar 10 10:23:51 server sshd[4530]: Failed password for admin from 103.195.236.44 port 22 ssh2
+Mar 10 10:23:52 server sshd[4531]: Failed password for user from 103.195.236.44 port 22 ssh2
+Mar 10 10:23:53 server sshd[4532]: Failed password for root from 103.195.236.44 port 22 ssh2
+Mar 10 10:23:54 server sshd[4533]: Failed password for oracle from 103.195.236.44 port 22 ssh2
+Mar 10 10:23:55 server sshd[4534]: Failed password for test from 103.195.236.44 port 22 ssh2
+Mar 10 10:24:00 server sshd[4535]: Failed password for root from 103.195.236.44 port 22 ssh2
+Mar 10 10:24:05 server sshd[4536]: Failed password for root from 103.195.236.44 port 22 ssh2
+185.234.218.12 - - [10/Mar/2026:10:25:00 +0000] "GET /admin HTTP/1.1" 404 512
+185.234.218.12 - - [10/Mar/2026:10:25:01 +0000] "GET /wp-admin HTTP/1.1" 404 512
+185.234.218.12 - - [10/Mar/2026:10:25:02 +0000] "GET /phpMyAdmin HTTP/1.1" 404 512
+185.234.218.12 - - [10/Mar/2026:10:25:03 +0000] "GET /.env HTTP/1.1" 404 512
+185.234.218.12 - - [10/Mar/2026:10:25:04 +0000] "GET /config.php HTTP/1.1" 404 512
+10.0.0.5 - - [10/Mar/2026:10:26:00 +0000] "GET /api/users HTTP/1.1" 200 2048
+10.0.0.5 - - [10/Mar/2026:10:26:01 +0000] "GET /api/data HTTP/1.1" 200 15024
