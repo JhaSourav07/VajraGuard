@@ -1,16 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer,
 } from 'recharts';
+import { Activity, ShieldAlert, Globe, Zap } from 'lucide-react';
 import { fetchEvents } from '@/lib/api';
 
 interface SecurityEvent {
@@ -23,186 +19,169 @@ interface SecurityEvent {
 }
 
 const EVENT_COLORS: Record<string, string> = {
-  failed_login: '#ff4444',
-  successful_login: '#00ff88',
-  port_scan: '#ff8c00',
-  firewall_block: '#ffd700',
-  web_request: '#00d4ff',
-  unknown: '#94a3b8',
+  failed_login:    '#FF3B3B',
+  successful_login:'#10B981',
+  port_scan:       '#F59E0B',
+  firewall_block:  '#FBBF24',
+  web_request:     '#00E0FF',
+  unknown:         '#6B7280',
 };
 
-function processTimelineData(events: SecurityEvent[]) {
+function buildTimeline(events: SecurityEvent[]) {
   const buckets: Record<string, Record<string, number>> = {};
-
-  events.forEach((e) => {
-    const time = e.timestamp
-      ? e.timestamp.substring(0, 5)  // "HH:MM" or first 5 chars
+  events.forEach(e => {
+    const t = e.timestamp ? e.timestamp.slice(0, 5)
       : new Date(e.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-    if (!buckets[time]) {
-      buckets[time] = {
-        failed_login: 0, successful_login: 0, port_scan: 0, firewall_block: 0, web_request: 0, unknown: 0,
-      };
-    }
-    buckets[time][e.event_type] = (buckets[time][e.event_type] || 0) + 1;
+    if (!buckets[t]) buckets[t] = { failed_login: 0, successful_login: 0, port_scan: 0, firewall_block: 0, web_request: 0 };
+    buckets[t][e.event_type] = (buckets[t][e.event_type] || 0) + 1;
   });
-
-  return Object.entries(buckets)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([time, counts]) => ({ time, ...counts }));
+  return Object.entries(buckets).sort(([a],[b]) => a.localeCompare(b)).map(([time, v]) => ({ time, ...v }));
 }
+
+const ChartTooltip = ({ active, payload, label }: { active?: boolean; payload?: { color: string; name: string; value: number }[]; label?: string }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-bright)', borderRadius: 10, padding: '10px 14px', fontSize: 12 }}>
+      <div style={{ color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>{label}</div>
+      {payload.filter(p => p.value > 0).map((p, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-primary)', marginBottom: 2 }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }} />
+          {p.name}: <strong>{p.value}</strong>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function AttackTimelinePage() {
   const [events, setEvents] = useState<SecurityEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timelineData, setTimelineData] = useState<Record<string, string | number>[]>([]);
 
   useEffect(() => {
-    fetchEvents()
-      .then((data) => {
-        const evts = data.events || [];
-        setEvents(evts);
-        setTimelineData(processTimelineData(evts));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    fetchEvents().then(d => setEvents(d.events || [])).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  const eventCounts = events.reduce((acc, e) => {
-    acc[e.event_type] = (acc[e.event_type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const timeline = buildTimeline(events);
+  const counts = events.reduce((a, e) => ({ ...a, [e.event_type]: (a[e.event_type as keyof typeof a] || 0) + 1 }), {} as Record<string, number>);
+
+  const SUMMARY = [
+    { label: 'Failed Logins',  key: 'failed_login',    icon: ShieldAlert, color: '#FF3B3B' },
+    { label: 'Port Scans',     key: 'port_scan',        icon: Globe,       color: '#F59E0B' },
+    { label: 'Firewall Blocks',key: 'firewall_block',   icon: Zap,         color: '#FBBF24' },
+    { label: 'Web Requests',   key: 'web_request',      icon: Activity,    color: '#00E0FF' },
+  ];
 
   return (
-    <div>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800 }}>Attack Timeline</h1>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-          Chronological visualization of security events
+    <>
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.3 }}>Attack Timeline</h1>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 3 }}>
+          Chronological security event visualization
         </p>
-      </div>
+      </motion.div>
 
-      {/* Event type summary */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
-        {Object.entries(EVENT_COLORS).map(([type, color]) => (
-          <div
-            key={type}
+      {/* Summary chips */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        {SUMMARY.map(({ label, key, icon: Icon, color }, i) => (
+          <motion.div
+            key={key}
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
             className="card"
-            style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8, minWidth: 140 }}
+            style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 10, minWidth: 155 }}
           >
-            <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
-                {type.replace('_', ' ')}
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 18, color }}>
-                {loading ? '...' : eventCounts[type] || 0}
-              </div>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: `${color}12`, border: `1px solid ${color}20`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Icon size={15} color={color} />
             </div>
-          </div>
+            <div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8 }}>{label}</div>
+              <div style={{ fontWeight: 800, fontSize: 20, color, lineHeight: 1.2 }}>{loading ? '—' : counts[key] || 0}</div>
+            </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Main chart */}
-      <div className="card" style={{ padding: 24, marginBottom: 20 }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Event Frequency Over Time</h2>
+      {/* Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+        className="card" style={{ padding: '22px 24px', marginBottom: 20 }}
+      >
+        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Activity size={14} color="var(--blue)" />
+          Event Frequency Over Time
+        </div>
         {loading ? (
-          <div style={{ height: 350, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-            Loading timeline...
-          </div>
-        ) : timelineData.length === 0 ? (
-          <div style={{ height: 350, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 32 }}>📊</div>
-            <div>No events to display. Upload logs or run a simulation.</div>
+          <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Loading...</div>
+        ) : timeline.length === 0 ? (
+          <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8, color: 'var(--text-muted)' }}>
+            <Activity size={32} style={{ opacity: 0.3 }} />
+            <div style={{ fontSize: 13 }}>No events yet — upload logs or simulate an attack</div>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={350}>
-            <AreaChart data={timelineData}>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={timeline}>
               <defs>
-                {Object.entries(EVENT_COLORS).map(([type, color]) => (
-                  <linearGradient key={type} id={`grad-${type}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={color} stopOpacity={0.3} />
-                    <stop offset="95%" stopColor={color} stopOpacity={0} />
+                {Object.entries(EVENT_COLORS).map(([k, c]) => (
+                  <linearGradient key={k} id={`g-${k}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={c} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={c} stopOpacity={0} />
                   </linearGradient>
                 ))}
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="time" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-              <Tooltip
-                contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
-                labelStyle={{ color: 'var(--text-primary)', fontWeight: 700 }}
-              />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Area type="monotone" dataKey="failed_login" stackId="1" stroke={EVENT_COLORS.failed_login} fill={`url(#grad-failed_login)`} name="Failed Login" />
-              <Area type="monotone" dataKey="port_scan" stackId="1" stroke={EVENT_COLORS.port_scan} fill={`url(#grad-port_scan)`} name="Port Scan" />
-              <Area type="monotone" dataKey="firewall_block" stackId="1" stroke={EVENT_COLORS.firewall_block} fill={`url(#grad-firewall_block)`} name="Firewall Block" />
-              <Area type="monotone" dataKey="web_request" stackId="1" stroke={EVENT_COLORS.web_request} fill={`url(#grad-web_request)`} name="Web Request" />
-              <Area type="monotone" dataKey="successful_login" stackId="1" stroke={EVENT_COLORS.successful_login} fill={`url(#grad-successful_login)`} name="Successful Login" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="time" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip />} />
+              {Object.entries(EVENT_COLORS).map(([k, c]) => (
+                <Area key={k} type="monotone" dataKey={k} stackId="1"
+                  stroke={c} strokeWidth={1.5} fill={`url(#g-${k})`} name={k.replace('_', ' ')} />
+              ))}
             </AreaChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </motion.div>
 
-      {/* Events log */}
-      <div className="card" style={{ padding: 20 }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Event Log</h2>
-        <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-          {loading ? (
-            <div style={{ padding: 20, color: 'var(--text-muted)', textAlign: 'center' }}>Loading events...</div>
-          ) : events.length === 0 ? (
-            <div style={{ padding: 20, color: 'var(--text-muted)', textAlign: 'center' }}>No events found.</div>
-          ) : (
-            events.map((event, i) => (
-              <div
-                key={event._id || i}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '8px 12px',
-                  borderBottom: '1px solid var(--border)',
-                  fontSize: 12,
-                }}
-              >
-                <div
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    background: EVENT_COLORS[event.event_type] || '#94a3b8',
-                    flexShrink: 0,
-                  }}
-                />
-                <span style={{ color: 'var(--text-muted)', minWidth: 80, fontFamily: 'monospace' }}>
-                  {event.timestamp || new Date(event.createdAt).toLocaleTimeString()}
-                </span>
-                <span
-                  style={{
-                    padding: '1px 8px',
-                    borderRadius: 10,
-                    background: `${EVENT_COLORS[event.event_type] || '#94a3b8'}20`,
-                    color: EVENT_COLORS[event.event_type] || '#94a3b8',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {event.event_type.replace('_', ' ')}
-                </span>
-                {event.ip && (
-                  <span className="mono" style={{ color: 'var(--cyan)' }}>{event.ip}</span>
-                )}
-                {event.username && (
-                  <span style={{ color: 'var(--text-muted)' }}>→ {event.username}</span>
-                )}
-              </div>
-            ))
-          )}
+      {/* Event log */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+        className="card" style={{ overflow: 'hidden' }}
+      >
+        <div style={{ padding: '14px 22px', borderBottom: '1px solid var(--border)', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ShieldAlert size={14} color="var(--red)" />
+          Event Log
+          {events.length > 0 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(0,224,255,0.2)' }}>{events.length}</span>}
         </div>
-      </div>
-    </div>
+        <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+          {events.length === 0 ? (
+            <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No events found.</div>
+          ) : events.map((e, i) => (
+            <div key={e._id} style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '8px 18px',
+              borderBottom: '1px solid var(--border)', fontSize: 12,
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: EVENT_COLORS[e.event_type] || '#6B7280', flexShrink: 0,
+                boxShadow: `0 0 6px ${EVENT_COLORS[e.event_type] || '#6B7280'}80` }} />
+              <span style={{ color: 'var(--text-muted)', minWidth: 72, fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+                {e.timestamp || new Date(e.createdAt).toLocaleTimeString()}
+              </span>
+              <span style={{
+                padding: '2px 8px', borderRadius: 10, fontWeight: 700, fontSize: 9,
+                textTransform: 'uppercase', letterSpacing: 0.5, whiteSpace: 'nowrap',
+                background: `${EVENT_COLORS[e.event_type] || '#6B7280'}14`,
+                color: EVENT_COLORS[e.event_type] || '#6B7280',
+                border: `1px solid ${EVENT_COLORS[e.event_type] || '#6B7280'}30`,
+              }}>
+                {e.event_type.replace('_', ' ')}
+              </span>
+              {e.ip && <span className="mono" style={{ color: 'var(--blue)', fontSize: 11 }}>{e.ip}</span>}
+              {e.username && <span style={{ color: 'var(--text-muted)' }}>→ {e.username}</span>}
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </>
   );
 }
