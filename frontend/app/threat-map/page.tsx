@@ -40,7 +40,7 @@ export default function ThreatMapPage() {
   const STATS = [
     { label: 'Attack Sources', value: geoData.length, icon: MapPin, color: '#FF3B3B' },
     { label: 'Countries',      value: Object.keys(countryCount).length, icon: Globe, color: '#F59E0B' },
-    { label: 'Total Attacks',  value: geoData.reduce((a, g) => a + g.count, 0), icon: AlertTriangle, color: '#00E0FF' },
+    { label: 'Total Attacks',  value: geoData.reduce((a, g) => a + (g.count || 0), 0), icon: AlertTriangle, color: '#00E0FF' },
     { label: 'Active Nodes',   value: geoData.filter(g => g.count > 1).length, icon: Wifi, color: '#7C3AED' },
   ];
 
@@ -64,7 +64,7 @@ export default function ThreatMapPage() {
             </div>
             <div>
               <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8 }}>{label}</div>
-              <div style={{ fontWeight: 800, fontSize: 20, color, lineHeight: 1.2 }}>{loading ? '—' : value}</div>
+              <div style={{ fontWeight: 800, fontSize: 20, color, lineHeight: 1.2 }}>{loading ? '—' : String(value ?? 0)}</div>
             </div>
           </motion.div>
         ))}

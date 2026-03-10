@@ -1,17 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const { authMiddleware } = require('../middleware/auth');
 const threatsController = require('../controllers/threatsController');
 
-// GET /api/threats
-router.get('/', threatsController.getThreats);
-
-// GET /api/threats/stats
-router.get('/stats', threatsController.getStats);
-
-// GET /api/threats/geo
-router.get('/geo', threatsController.getGeoData);
-
-// PATCH /api/threats/:id/status
-router.patch('/:id/status', threatsController.updateStatus);
+router.get('/',             authMiddleware, threatsController.getThreats);
+router.get('/stats',        authMiddleware, threatsController.getStats);
+router.get('/geo',          authMiddleware, threatsController.getGeoData);
+router.patch('/:id/status', authMiddleware, threatsController.updateStatus);
 
 module.exports = router;

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const simulationController = require('../controllers/simulationController');
+const { authMiddleware } = require('../middleware/auth');
+const { runSimulation } = require('../controllers/simulationController');
 
-// POST /api/simulate
-router.post('/', simulationController.runSimulation);
+router.post('/', authMiddleware, runSimulation);
 
 module.exports = router;

@@ -6,16 +6,24 @@ const securityEventSchema = new mongoose.Schema({
     enum: ['failed_login', 'successful_login', 'port_scan', 'web_request', 'firewall_block', 'data_access', 'unknown'],
     default: 'unknown',
   },
-  ip: { type: String, default: null },
-  username: { type: String, default: null },
-  port: { type: Number, default: null },
-  url: { type: String, default: null },
+  ip:         { type: String, default: null },
+  username:   { type: String, default: null },
+  port:       { type: Number, default: null },
+  url:        { type: String, default: null },
   statusCode: { type: Number, default: null },
-  method: { type: String, default: null },
-  timestamp: { type: String },
-  rawLine: { type: String },
-  logId: { type: mongoose.Schema.Types.ObjectId, ref: 'Log', default: null },
-  createdAt: { type: Date, default: Date.now },
+  method:     { type: String, default: null },
+  timestamp:  { type: String },
+  rawLine:    { type: String },
+  logId:      { type: mongoose.Schema.Types.ObjectId, ref: 'Log', default: null },
+  createdAt:  { type: Date, default: Date.now },
+
+  // ─── Auth scoping ─────────────────────────────────────
+  userId:         { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  guestId:        { type: String, default: null },
+  isGuest:        { type: Boolean, default: false },
+  guestExpiresAt: { type: Date, default: null },
 });
+
+securityEventSchema.index({ guestExpiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('SecurityEvent', securityEventSchema);

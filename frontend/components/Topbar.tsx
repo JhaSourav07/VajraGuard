@@ -1,10 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Bell, ShieldCheck, User, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, Bell, ShieldCheck, Zap, User, LogOut, UserCircle2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Topbar() {
   const [search, setSearch] = useState('');
+  const { user, isGuest, logout } = useAuth();
+  const router = useRouter();
+
+  function handleLogout() {
+    logout();
+    router.replace('/login');
+  }
 
   return (
     <header style={{
@@ -15,23 +24,19 @@ export default function Topbar() {
       display: 'flex',
       alignItems: 'center',
       padding: '0 24px',
-      gap: 16,
+      gap: 12,
       flexShrink: 0,
       position: 'sticky',
       top: 0,
       zIndex: 40,
     }}>
       {/* Search */}
-      <div style={{ flex: 1, maxWidth: 360, position: 'relative' }}>
-        <Search
-          size={13}
-          color="var(--text-muted)"
-          style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-        />
+      <div style={{ flex: 1, maxWidth: 340, position: 'relative' }}>
+        <Search size={13} color="var(--text-muted)" style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
         <input
           className="input-base"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           placeholder="Search threats, IPs, events..."
           style={{ paddingLeft: 32, fontSize: 12 }}
         />
@@ -42,61 +47,84 @@ export default function Topbar() {
       {/* System status */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 7,
-        padding: '5px 14px', borderRadius: 20,
-        background: 'rgba(16,185,129,0.08)',
-        border: '1px solid rgba(16,185,129,0.2)',
+        padding: '5px 12px', borderRadius: 20,
+        background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)',
       }}>
         <ShieldCheck size={13} color="#10B981" />
-        <span style={{ fontSize: 11, color: '#10B981', fontWeight: 600, letterSpacing: 0.5 }}>
-          SYSTEM SECURE
-        </span>
+        <span style={{ fontSize: 11, color: '#10B981', fontWeight: 600, letterSpacing: 0.5 }}>SECURE</span>
         <span className="status-dot status-dot-green" style={{ width: 6, height: 6 }} />
       </div>
 
-      {/* ASI-1 status */}
+      {/* ASI-1 */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 6,
-        padding: '5px 12px', borderRadius: 20,
-        background: 'rgba(0,224,255,0.06)',
-        border: '1px solid rgba(0,224,255,0.15)',
+        padding: '5px 11px', borderRadius: 20,
+        background: 'rgba(0,224,255,0.06)', border: '1px solid rgba(0,224,255,0.15)',
       }}>
         <Zap size={12} color="var(--blue)" />
-        <span style={{ fontSize: 11, color: 'var(--blue)', fontWeight: 600, letterSpacing: 0.5 }}>
-          ASI-1
-        </span>
+        <span style={{ fontSize: 11, color: 'var(--blue)', fontWeight: 600 }}>ASI-1</span>
       </div>
 
       {/* Notifications */}
       <div style={{
-        width: 34, height: 34, borderRadius: 9,
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid var(--border)',
+        width: 32, height: 32, borderRadius: 8,
+        background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer', position: 'relative',
-        transition: 'background 0.2s, border-color 0.2s',
       }}>
-        <Bell size={15} color="var(--text-secondary)" />
-        {/* Notification badge */}
+        <Bell size={14} color="var(--text-secondary)" />
         <span style={{
           position: 'absolute', top: 6, right: 6,
-          width: 7, height: 7, borderRadius: '50%',
-          background: '#FF3B3B',
-          boxShadow: '0 0 6px rgba(255,59,59,0.8)',
+          width: 6, height: 6, borderRadius: '50%',
+          background: '#FF3B3B', boxShadow: '0 0 6px rgba(255,59,59,0.8)',
           animation: 'pulse-glow 2s ease-in-out infinite',
         }} />
       </div>
 
-      {/* Avatar */}
+      {/* User / Guest badge */}
       <div style={{
-        width: 34, height: 34, borderRadius: 9,
-        background: 'linear-gradient(135deg, #7C3AED, #4F46E5)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        cursor: 'pointer',
-        boxShadow: '0 0 12px rgba(124,58,237,0.35)',
-        flexShrink: 0,
+        display: 'flex', alignItems: 'center', gap: 7,
+        padding: '5px 12px', borderRadius: 20,
+        background: isGuest ? 'rgba(0,224,255,0.06)' : 'rgba(124,58,237,0.08)',
+        border: `1px solid ${isGuest ? 'rgba(0,224,255,0.15)' : 'rgba(124,58,237,0.2)'}`,
       }}>
-        <User size={16} color="#fff" strokeWidth={2} />
+        {isGuest ? (
+          <UserCircle2 size={14} color="var(--blue)" />
+        ) : (
+          <User size={14} color="var(--purple)" />
+        )}
+        <span style={{
+          fontSize: 12, fontWeight: 600,
+          color: isGuest ? 'var(--blue)' : 'var(--text-primary)',
+        }}>
+          {isGuest ? 'Guest' : user?.name?.split(' ')[0] || 'User'}
+        </span>
+        {isGuest && (
+          <span style={{
+            fontSize: 9, padding: '1px 6px', borderRadius: 6, fontWeight: 700,
+            background: 'rgba(245,158,11,0.12)', color: '#F59E0B',
+            border: '1px solid rgba(245,158,11,0.25)', letterSpacing: 0.5,
+          }}>
+            TEMP
+          </span>
+        )}
       </div>
+
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        title="Sign out"
+        style={{
+          width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+          background: 'rgba(255,59,59,0.06)', border: '1px solid rgba(255,59,59,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', transition: 'all 0.2s',
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,59,59,0.14)'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,59,59,0.06)'; }}
+      >
+        <LogOut size={13} color="var(--red)" />
+      </button>
     </header>
   );
 }

@@ -1,37 +1,25 @@
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const router = express.Router();
+const multer  = require('multer');
+const path    = require('path');
+const router  = express.Router();
+const { authMiddleware } = require('../middleware/auth');
 const logsController = require('../controllers/logsController');
 
-// Configure multer storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads'));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
-  },
+  destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads')),
+  filename:    (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random()*1e9)}-${file.originalname}`),
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === '.log' || ext === '.txt') {
-      cb(null, true);
-    } else {
-      cb(new Error('Only .log and .txt files are allowed'));
-    }
+    ext === '.log' || ext === '.txt' ? cb(null, true) : cb(new Error('Only .log and .txt files allowed'));
   },
 });
 
-// POST /api/logs/upload
-router.post('/upload', upload.single('logfile'), logsController.uploadLog);
-
-// GET /api/logs
-router.get('/', logsController.getLogs);
+router.post('/upload', authMiddleware, upload.single('logfile'), logsController.uploadLog);
+router.get('/',        authMiddleware, logsController.getLogs);
 
 module.exports = router;

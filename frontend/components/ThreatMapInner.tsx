@@ -25,21 +25,42 @@ export default function ThreatMapInner({ geoData }: { geoData: GeoPoint[] }) {
 
   useEffect(() => {
     if (!mapRef.current) return;
+
+    // Destroy any existing map instance
     if (mapInstance.current) {
       mapInstance.current.remove();
       mapInstance.current = null;
     }
 
-    // Dynamic import to avoid SSR
+    // Leaflet stamps a _leaflet_id on the container div. If the component
+    // remounts (e.g. React Strict Mode double-invoke) without a full DOM
+    // teardown the id lingers and causes "Map container is already initialized".
+    // Deleting it lets Leaflet treat the element as fresh.
+    const container = mapRef.current as HTMLDivElement & { _leaflet_id?: number };
+    if (container._leaflet_id) {
+      delete container._leaflet_id;
+    }
+
+    let cancelled = false; // guard against stale async callbacks
+
     async function initMap() {
       const L = (await import('leaflet')).default;
-      // Leaflet CSS – loaded dynamically to avoid SSR issues
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
+      if (cancelled || !mapRef.current) return; // effect already cleaned up
 
-      const map = L.map(mapRef.current!, {
+      // Inject Leaflet CSS once
+      if (!document.getElementById('leaflet-css')) {
+        const link = document.createElement('link');
+        link.id = 'leaflet-css';
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+      }
+
+      // Clear _leaflet_id again in case the await let another render sneak in
+      const el = mapRef.current as HTMLDivElement & { _leaflet_id?: number };
+      if (el._leaflet_id) delete el._leaflet_id;
+
+      const map = L.map(mapRef.current, {
         center: [20, 0],
         zoom: 2,
         zoomControl: true,
@@ -96,6 +117,7 @@ export default function ThreatMapInner({ geoData }: { geoData: GeoPoint[] }) {
     initMap();
 
     return () => {
+      cancelled = true; // abort any pending async initMap
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
