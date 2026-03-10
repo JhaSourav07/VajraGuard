@@ -233,13 +233,15 @@ export default function UploadLogsPage() {
 
   return (
     <div>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800 }}>Upload Security Logs</h1>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-          Upload server logs to detect threats using AI-powered analysis
-        </p>
+      {/* Page Header */}
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Log Analysis Engine</h1>
+          <p className="page-subtitle">
+            Upload access, firewall, or syslogs for ASI-1 automated threat detection.
+          </p>
+        </div>
       </div>
-
       {/* Upload zone */}
       <div className="card" style={{ padding: 28, marginBottom: 20 }}>
         <div

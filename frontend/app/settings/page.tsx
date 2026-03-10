@@ -102,11 +102,13 @@ export default function SettingsPage() {
       </AnimatePresence>
 
       {/* Page header */}
-      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.3 }}>Settings</h1>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 3 }}>
-          Manage your account and data preferences
-        </p>
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="page-header">
+        <div>
+          <h1 className="page-title">Settings</h1>
+          <p className="page-subtitle">
+            Manage your account and data preferences
+          </p>
+        </div>
       </motion.div>
 
       <div style={{ maxWidth: 600, display: 'flex', flexDirection: 'column', gap: 16 }}>

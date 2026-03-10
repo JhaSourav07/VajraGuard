@@ -73,11 +73,13 @@ export default function AttackTimelinePage() {
 
   return (
     <>
-      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.3 }}>Attack Timeline</h1>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 3 }}>
-          Chronological security event visualization
-        </p>
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="page-header">
+        <div>
+          <h1 className="page-title">Attack Timeline</h1>
+          <p className="page-subtitle">
+            Chronological security event visualization
+          </p>
+        </div>
       </motion.div>
 
       {/* Summary chips */}

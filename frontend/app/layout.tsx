@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body style={{ display: 'flex', minHeight: '100dvh', background: 'var(--bg-base)' }}>
+      <body>
         <AuthProvider>
           <AppShell>{children}</AppShell>
         </AuthProvider>

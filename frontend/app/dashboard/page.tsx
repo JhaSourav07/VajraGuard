@@ -182,11 +182,11 @@ export default function DashboardPage() {
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}
+        className="page-header"
       >
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.3 }}>Security Overview</h1>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 3 }}>
+          <h1 className="page-title">Security Overview</h1>
+          <p className="page-subtitle">
             Real-time threat monitoring and AI analysis
           </p>
         </div>

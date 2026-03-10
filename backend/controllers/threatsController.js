@@ -59,8 +59,14 @@ exports.getGeoData = async (req, res) => {
     const ips = threats.map((t) => t.sourceIp);
     const geoResults = await lookupIps(ips);
     const geoThreats = geoResults.map((geo) => {
-      const threat = threats.find((t) => t.sourceIp === geo.ip);
-      return { ...geo, type: threat?.type, riskLevel: threat?.riskLevel };
+      const matchingThreats = threats.filter((t) => t.sourceIp === geo.ip);
+      const threat = matchingThreats[0];
+      return { 
+        ...geo, 
+        type: threat?.type, 
+        riskLevel: threat?.riskLevel,
+        count: matchingThreats.length
+      };
     });
     res.json({ success: true, geoData: geoThreats });
   } catch (err) {

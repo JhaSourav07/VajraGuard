@@ -79,22 +79,24 @@ Ask me anything about your security data.`,
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-        style={{ marginBottom: 20 }}
+        className="page-header"
       >
-        <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.3, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 9,
-            background: 'linear-gradient(135deg, rgba(0,224,255,0.2), rgba(124,58,237,0.2))',
-            border: '1px solid rgba(0,224,255,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Sparkles size={16} color="var(--blue)" />
-          </div>
-          AI Security Assistant
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 3 }}>
-          Powered by ASI-1 — Ask anything about your logs and threats
-        </p>
+        <div>
+          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 9,
+              background: 'linear-gradient(135deg, rgba(0,224,255,0.2), rgba(124,58,237,0.2))',
+              border: '1px solid rgba(0,224,255,0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Sparkles size={16} color="var(--blue)" />
+            </div>
+            AI Security Assistant
+          </h1>
+          <p className="page-subtitle">
+            Powered by ASI-1 — Ask anything about your logs and threats
+          </p>
+        </div>
       </motion.div>
 
       {/* Suggested chips */}
